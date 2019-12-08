@@ -4,21 +4,20 @@ import yaml
 import json
 
 
-DEFAULT_CONFIG = os.environ["DEFAULT_CONFIG"]
-
-
 class ConfigManager:
     __config = dict()
 
     @classmethod
-    def get_config(cls):
+    def get_config(cls, config_file=None):
+        if config_file:
+            return cls.__load_config(config_file)
         if not cls.__config:
-            cls.__config = cls.__load_config(DEFAULT_CONFIG)
+            cls.__config = cls.__load_config(os.environ["DEFAULT_CONFIG"])
         return cls.__config
 
     @classmethod
-    def get_config_value(cls, component, value=None):
-        config = cls.get_config()
+    def get_config_value(cls, component, value=None, config=None):
+        config = cls.get_config(config)
         return config[component][value] if value is not None else config[component]
 
     @staticmethod
@@ -27,7 +26,9 @@ class ConfigManager:
             config = yaml.load(open(filename), yaml.SafeLoader)
             config = replace_env(config)
         except Exception as e:
-            raise Exception("Error: Can't parse config file {}. {}".format(filename, str(e)))
+            raise Exception(
+                "Error: Can't parse config file {}. {}".format(filename, str(e))
+            )
         return config
 
 
