@@ -1,6 +1,7 @@
 # pylint: disable=import-error
 from http.client import responses
 import uuid
+from functools import wraps
 
 
 def make_url(db_config, include_db=True):
@@ -61,3 +62,18 @@ def flatten(lists):
     for l in lists:
         lst += l
     return lst
+
+
+def make_path(*items):
+    return "/".join(items)
+
+
+def log_calls(f):
+    @wraps(f)
+    def _f(*args, **kwargs):
+        a = [type(a) for a in args]
+        k = {k: type(v) for k, v in kwargs.items()}
+        print(f"Called with args: {a} and kwargs: {k}")
+        return f(*args, **kwargs)
+
+    return _f
