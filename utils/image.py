@@ -32,6 +32,18 @@ def bytes_to_image(bytes_):
     return img
 
 
+def bytes_to_bytesIO(bytes_):
+    img = Image.open(io.BytesIO(bytes_))
+    img.verify()
+    return io.BytesIO(bytes_)
+
+
+def base64_to_bytesIO(bytes_):
+    bytes_ = bytes_.split(",")[-1]  # Remove the dataurl prefix
+    decoded = base64.b64decode(bytes_)
+    return bytes_to_bytesIO(decoded)
+
+
 def decode_image(src):
     if type(src) is bytes:
         return bytes_to_image(src)
