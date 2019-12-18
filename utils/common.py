@@ -59,9 +59,11 @@ def extract_attr(item, attr_name):
 
 def flatten(lists):
     lst = []
-    for l in lists:
-        lst += l
-    return lst
+    if type(lists) is not str:
+        for l in lists:
+            lst += l
+        return lst
+    return lists
 
 
 def make_path(*items):

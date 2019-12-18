@@ -1,3 +1,5 @@
+#Textract Response Parser
+
 import json
 
 
@@ -107,24 +109,30 @@ class Word:
 
 
 class Line:
-    def __init__(self, block, blockMap):
+    def __init__(self, block, blockMap=None):
 
         self._block = block
         self._confidence = block["Confidence"]
         self._geometry = Geometry(block["Geometry"])
         self._id = block["Id"]
+        self.merged_blocks = []
 
         self._text = ""
         if block["Text"]:
             self._text = block["Text"]
 
-        self._words = []
-        if "Relationships" in block and block["Relationships"]:
-            for rs in block["Relationships"]:
-                if rs["Type"] == "CHILD":
-                    for cid in rs["Ids"]:
-                        if blockMap[cid]["BlockType"] == "WORD":
-                            self._words.append(Word(blockMap[cid], blockMap))
+        if blockMap:
+            self._words = []
+            if "Relationships" in block and block["Relationships"]:
+                for rs in block["Relationships"]:
+                    if rs["Type"] == "CHILD":
+                        for cid in rs["Ids"]:
+                            if blockMap[cid]["BlockType"] == "WORD":
+                                self._words.append(Word(blockMap[cid], blockMap))
+        else:
+            words = block.pop('words')
+            self._words = [Word(w,None) for w in words]
+
 
     def __str__(self):
         s = "Line\n==========\n"
@@ -627,6 +635,14 @@ class Document:
         for p in self._pages:
             s = s + str(p) + "\n\n"
         return s
+
+    def get_blockMap(self):
+        blockMap = {}
+        for page in self._responsePages:
+            for block in page["Blocks"]:
+                if "BlockType" in block and "Id" in block:
+                    blockMap[block["Id"]] = block
+        return blockMap
 
     def _parseDocumentPagesAndBlockMap(self):
 

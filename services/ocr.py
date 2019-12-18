@@ -1,5 +1,4 @@
 import boto3
-from pymongo import MongoClient
 
 from services.trp import Document
 import PIL
@@ -15,7 +14,9 @@ class Textract:
     @classmethod
     def __get_client(cls):
         if not cls.__client:
-            cls.__client = boto3.client("textract")
+            session = boto3.session.Session()
+            client = session.client("textract")
+            cls.__client = client
         return cls.__client
 
     def detect_text(self, document, raw_response=False):
