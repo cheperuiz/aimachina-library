@@ -51,6 +51,7 @@ class EventType(Enum):
     FILES_UPLOADED = auto()
     # Transactions
     TRANSACTIONS_LOADED = auto()
+    RECEIPTS_EVENT = auto()
 
 @dataclass
 class BaseEvent:
