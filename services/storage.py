@@ -31,6 +31,10 @@ class S3:
         bucket.upload_fileobj(obj, key)
         return key
 
+    def download_file(self, key, file_name):
+        bucket = self._get_bucket()
+        return bucket.download_file(key, file_name)
+
     def list_files(self, limit=1000):
         bucket = self._get_bucket()
         return [o.key for o in bucket.objects.limit(count=limit)]

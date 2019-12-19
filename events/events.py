@@ -198,8 +198,9 @@ class FileEvent(BaseEvent):
     prefix: str = "FILES"
 
     def __init__(
-        self, route: str, event_type: EventType = None, *args, **kwargs
+        self, route: str, user_id: str, event_type: EventType = None, *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
         self.route = route
+        self.user_id = user_id
         self.event_type = event_type or EventType.FILES_UPLOADED
