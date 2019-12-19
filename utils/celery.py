@@ -18,7 +18,7 @@ class CeleryManager:
             celery = Celery(name, broker=broker_url, backend=results_backend_url,)
 
             if use_flask:
-                if not cls.__flask_app:
+                if use_flask and not cls.__flask_app:
                     from app.app_factory import make_flask
 
                     flask_app = flask_app or make_flask()

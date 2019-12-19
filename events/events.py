@@ -47,7 +47,10 @@ class EventType(Enum):
     TRACKABLE_MATCHING_SET_INACTIVE = auto()
 
     MATCH_FOUND = auto()
-
+    # Files
+    FILES_UPLOADED = auto()
+    # Transactions
+    TRANSACTIONS_LOADED = auto()
 
 @dataclass
 class BaseEvent:
@@ -189,3 +192,14 @@ class MatchEvent(BaseEvent):
         self.test = test
         self.metrics = metrics
         self.event_type = event_type or EventType.MATCH_FOUND
+
+@dataclass
+class FileEvent(BaseEvent):
+    prefix: str = "FILES"
+
+    def __init__(
+        self, route: str, event_type: EventType = None, *args, **kwargs
+    ):
+        super().__init__(*args, **kwargs)
+        self.route = route
+        self.event_type = event_type or EventType.FILES_UPLOADED
