@@ -48,3 +48,17 @@ def decode_image(src):
     if type(src) is bytes:
         return bytes_to_image(src)
     return base64_to_image(src)
+
+
+def resize_image(image, max_dim=1800):
+    w, h = image.size
+    if w > h:
+        ratio = max_dim / w
+        w = max_dim
+        h = int(h * ratio)
+    else:
+        ratio = max_dim / h
+        h = max_dim
+        w = int(w * ratio)
+    return image.resize([w, h])
+
