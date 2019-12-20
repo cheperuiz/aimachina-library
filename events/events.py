@@ -49,6 +49,9 @@ class EventType(Enum):
     MATCH_FOUND = auto()
     # Files
     FILES_UPLOADED = auto()
+    IMAGE_UPLOADED = auto()
+    EXCEL_UPLOADED = auto()
+    
     # Transactions
     TRANSACTIONS_LOADED = auto()
     RECEIPT_CREATED = auto()
