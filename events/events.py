@@ -175,17 +175,10 @@ class MatchEvent(BaseEvent):
     metrics: dict = field(default_factory=dict)
 
     def __init__(
-        self,
-        anchor: str,
-        test: str,
-        metrics: dict,
-        correlations: dict = {},
-        event_type: EventType = None,
-        *args,
-        **kwargs
+        self, test: str, matches: dict, correlations: dict = {}, event_type: EventType = None, *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
-        self.anchor = anchor
         self.test = test
-        self.metrics = metrics
+        self.matches = matches
+        self.correlations = correlations
         self.event_type = event_type or EventType.MATCH_FOUND
