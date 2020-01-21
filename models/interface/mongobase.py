@@ -27,12 +27,12 @@ class IMongoBase:
     updated_at: datetime.datetime
 
     @classmethod
-    def get_all(cls, constraint_value={}):
+    def get_all(cls, constraint_value={}, skip=0, limit=0):
         if cls.__force_constraint__ and not constraint_value:
             raise ValueError(CONSTRAINT_ERROR_MSG)
         c = db[cls.__collection__]
         ser = cls.__serializer__
-        dicts = list(c.find(constraint_value))
+        dicts = list(c.find(constraint_value).skip(skip).limit(limit))
         return [ser.load(d) for d in dicts if d]
 
     @classmethod

@@ -19,7 +19,8 @@ class ConfigManager:
     @staticmethod
     def __load_config(filename):
         try:
-            config = yaml.load(open(filename), yaml.SafeLoader)
+            with open(filename) as f:
+                config = yaml.load(f, yaml.SafeLoader)
             config = replace_env(config)
         except Exception as e:
             raise Exception("Error: Can't parse config file {}. {}".format(filename, str(e)))

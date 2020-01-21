@@ -47,6 +47,14 @@ class EventType(Enum):
     TRACKABLE_MATCHING_SET_INACTIVE = auto()
 
     MATCH_FOUND = auto()
+    # Files
+    FILES_UPLOADED = auto()
+    IMAGE_UPLOADED = auto()
+    EXCEL_UPLOADED = auto()
+    
+    # Transactions
+    TRANSACTIONS_LOADED = auto()
+    RECEIPT_CREATED = auto()
 
 
 @dataclass
@@ -182,3 +190,25 @@ class MatchEvent(BaseEvent):
         self.matches = matches
         self.correlations = correlations
         self.event_type = event_type or EventType.MATCH_FOUND
+
+
+@dataclass
+class FileEvent(BaseEvent):
+    prefix: str = "FILES"
+
+    def __init__(self, route: str, user_id: str, event_type: EventType = None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.route = route
+        self.user_id = user_id
+        self.event_type = event_type or EventType.FILES_UPLOADED
+
+
+@dataclass
+class ReceiptEvent(BaseEvent):
+    prefix: str = "RECEIPT"
+
+    def __init__(self, receipt_data: dict, user_id: str, event_type: EventType = None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user_id = user_id
+        self.receipt_data = receipt_data
+        self.event_type = event_type or EventType.RECEIPT_CREATED
