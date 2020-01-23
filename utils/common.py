@@ -79,3 +79,14 @@ def log_calls(f):
         return f(*args, **kwargs)
 
     return _f
+
+
+def parse_params(params):
+    from flask_restplus import reqparse
+
+    parser = reqparse.RequestParser()
+    for param in params:
+        parser.add_argument(**param)
+    parsed_params = parser.parse_args()
+    parsed_params = {k: v for k, v in parsed_params.items() if v is not None}
+    return parsed_params
