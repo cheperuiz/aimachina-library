@@ -109,10 +109,11 @@ def retrieve_event(stream_name, event_id):  # TODO: Handle case for retrieving b
     return bytes_to_event(event_bytes)
 
 
-def source_event(stream_name, filters_dict={}, batch_size=128, latest_first=True, max_iter=1000):
+def source_event(stream_name, filters_dict={}, batch_size=128, latest_first=True):
     broker = RedisStream.get_broker()
     next_id = "+" if latest_first else "-"
     i = 0
+    max_iter = int(1000 / batch_size) + 1
     while i < max_iter:
         i += 1
         if latest_first:
@@ -163,11 +164,12 @@ def match_event(event, filters_dict):
 
 
 def source_item_from_list_in_event(
-    stream_name, list_name, field, value, batch_size=1000, max_iter=1000,
+    stream_name, list_name, field, value, batch_size=1000,
 ):
     broker = RedisStream.get_broker()
     next_id = "+"
     i = 0
+    max_iter = int(1000 / batch_size) + 1
     while i < max_iter:
         i += 1
         event_tuples = broker.xrevrange(stream_name, max=next_id, count=batch_size)
