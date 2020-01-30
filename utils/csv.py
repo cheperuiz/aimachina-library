@@ -5,27 +5,12 @@ import re
 import csv
 from multiprocessing import cpu_count, Pool
 
-from nltk.tokenize import word_tokenize
-from nltk.corpus import stopwords
-
+from nlp.stopwords import remove_stopwords
 from utils.string import clean_string, title_to_snake, first_valid, remove_accents
+from utils.common import batch_generator
+
 
 URL_CHARS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-_~+#,%&=*;:@/"
-EXTRA_STOPWORDS_PATH = os.environ["PROJECT_SRC"] + "/nlp/stopwords.txt"
-
-
-def extra_stopwords(stop_words_path=EXTRA_STOPWORDS_PATH):
-    try:
-        with open(stop_words_path) as f:
-            sw = f.read().split("\n")
-        return sw
-    except Exception as e:
-        return set()
-
-
-def line_generator(lines):
-    for line in lines:
-        yield line
 
 
 def clean_headers(headers):
@@ -34,37 +19,8 @@ def clean_headers(headers):
     return headers
 
 
-def chunk_generator(reader, chunk_size=16):
-    while True:
-        try:
-            chunk = []
-            for _ in range(chunk_size):
-                chunk.append(next(reader))
-            yield chunk
-        except StopIteration:
-            return chunk
-
-
 def filter_empty(lines):
     return [line for line in lines if any(line)]
-
-
-def get_stopwords(default_stopwords=set(stopwords.words("english")), extra_stopwords=extra_stopwords()):
-    sw = default_stopwords.union(extra_stopwords)
-    return sw
-
-
-def remove_stopwords(text, stop_words=get_stopwords(), remove_numbers=False):
-    if type(text) is bytes:
-        text = text.decode("utf-8")
-    text = clean_string(text)
-    words = word_tokenize(text)
-    words = [word for word in words if word.lower() not in stop_words]
-    if remove_numbers:
-        words = [
-            word for word in words if not word.replace(".", "").replace(":", "").replace("x", "").isnumeric()
-        ]
-    return " ".join(words)
 
 
 def line_remove_stopwords(line):
@@ -87,8 +43,8 @@ def parallel_clean_csv(dirty_path, clean_path):
     headers = clean_headers(next(reader))
     writer.writerow(headers)
     with Pool(cpu_count()) as p:
-        for chunk in chunk_generator(reader):
-            new_lines = p.map(line_remove_stopwords, chunk)
+        for batch in batch_generator(reader):
+            new_lines = p.map(line_remove_stopwords, batch)
             new_lines = p.map(line_fix_spaces, new_lines)
             new_lines = filter_empty(new_lines)
             writer.writerows(new_lines)
