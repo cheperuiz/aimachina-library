@@ -4,10 +4,22 @@ import unicodedata
 
 import numpy as np
 
+ALLOWED_CHARS = (
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 ,./<>?:;\\ `~!@#$%^&*()[]{}_+-=|¥\n"
+)
+
 
 def remove_accents(input_str, fmt="NFKD"):
     nkfd_form = unicodedata.normalize(fmt, input_str)
     return u"".join([c for c in nkfd_form if not unicodedata.combining(c)])
+
+
+def clean_string(s, charset=ALLOWED_CHARS):
+    if not isinstance(s, str):
+        s = s.decode("utf-8")  # Ensure unicode
+    s = remove_accents(s)
+    s = "".join([c for c in s if c in charset])  # Only keep some special characters
+    return s
 
 
 def format_string(input_str):
@@ -16,6 +28,17 @@ def format_string(input_str):
 
 def format_datetime_string(string):
     return string.upper().replace(".", "")
+
+
+def title_to_snake(title):
+    return title.lower().replace(" ", "_")
+
+
+def first_valid(string, charset=ALLOWED_CHARS):
+    for index, char in enumerate(string):
+        if not char in charset:
+            break
+    return string[:index]
 
 
 replace_dict = {

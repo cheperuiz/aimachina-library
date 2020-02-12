@@ -26,7 +26,7 @@ class RedisStream:
         return cls.__broker
 
 
-def produce_one(name, event, maxlen=1000):
+def produce_one(name, event, maxlen=500):
     r = RedisStream.get_broker()
     key = event.uuid
     value = event_to_bytes(event)
@@ -112,7 +112,10 @@ def retrieve_event(stream_name, event_id):  # TODO: Handle case for retrieving b
 def source_event(stream_name, filters_dict={}, batch_size=128, latest_first=True):
     broker = RedisStream.get_broker()
     next_id = "+" if latest_first else "-"
-    while True:
+    i = 0
+    max_iter = int(1000 / batch_size) + 1
+    while i < max_iter:
+        i += 1
         if latest_first:
             event_tuples = broker.xrevrange(stream_name, max=next_id, count=batch_size)
         else:
@@ -160,10 +163,15 @@ def match_event(event, filters_dict):
     return True
 
 
-def source_item_from_list_in_event(stream_name, list_name, field, value, batch_size=1000):
+def source_item_from_list_in_event(
+    stream_name, list_name, field, value, batch_size=1000,
+):
     broker = RedisStream.get_broker()
     next_id = "+"
-    while True:
+    i = 0
+    max_iter = int(1000 / batch_size) + 1
+    while i < max_iter:
+        i += 1
         event_tuples = broker.xrevrange(stream_name, max=next_id, count=batch_size)
         n = len(event_tuples)
         if not n:
