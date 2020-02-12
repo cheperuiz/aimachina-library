@@ -70,12 +70,12 @@ def make_path(*items):
     return "/".join(items)
 
 
-def log_calls(f):
+def log_call(f):
     @wraps(f)
     def _f(*args, **kwargs):
         a = [type(a) for a in args]
         k = {k: type(v) for k, v in kwargs.items()}
-        print(f"Called with args: {a} and kwargs: {k}")
+        print(f"{_f.__name__} called with\nargs: {a}\nand kwargs: {k}")
         return f(*args, **kwargs)
 
     return _f

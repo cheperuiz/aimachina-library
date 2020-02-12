@@ -32,8 +32,8 @@ class IMongoBase:
             raise ValueError(CONSTRAINT_ERROR_MSG)
         c = db[cls.__collection__]
         ser = cls.__serializer__
-        dicts = list(c.find(constraint_value).skip(skip).limit(limit))
-        return [ser.load(d) for d in dicts if d]
+        rsp = c.find(constraint_value).skip(skip).limit(limit)
+        return (ser.load(item) for item in rsp if item)
 
     @classmethod
     def get(cls, id_, constraint_value={}):
@@ -44,8 +44,8 @@ class IMongoBase:
     def get_many_by_ids(cls, ids, constraint_value={}):
         ids = set(ids)
         filters = [{"_id": id_} for id_ in ids]
-        rsp = [cls.get_first(f, constraint_value) for f in filters]
-        return [item for item in rsp if item]
+        rsp = (cls.get_first(f, constraint_value) for f in filters)
+        return (item for item in rsp if item)
 
     @classmethod
     def get_many_by(cls, filters, constraint_value={}):
@@ -56,7 +56,7 @@ class IMongoBase:
         constrained_filter = filters.copy()
         constrained_filter.update(constraint_value)
         cursor = c.find(constrained_filter)
-        rsp = [ser.load(obj) for obj in cursor if obj]
+        rsp = (ser.load(obj) for obj in cursor if obj)
         return rsp
 
     @classmethod
