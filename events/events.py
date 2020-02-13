@@ -19,6 +19,7 @@ class EventType(Enum):
 
     # Metrics
     METRICS_EVENT = auto()
+
     # Streams
     STREAM_CREATED = auto()
     STREAM_DELETED = auto()
@@ -26,35 +27,44 @@ class EventType(Enum):
     FRAMEPRODUCER_STARTED = auto()
     FRAMEPRODUCER_STOPPED = auto()
     FRAMEPRODUCER_FAILED = auto()
+
     # Frames
     FRAME_GRABBED = auto()
     FRAMEPRODUCER_METRICS = auto()
+
     # Detector
     OBJECT_DETECTED = auto()  # Detection
     OBJECTS_DETECTED = auto()  # DetectionsList
+
     # Encoder
     OBJECT_ENCODED = auto()  # Detection
     OBJECTS_ENCODED = auto()  # DetectionsList
+
     # Tracker
     OBJECT_TRACKING_ACTIVE = auto()
     OBJECT_TRACKING_MERGED = auto()
     OBJECT_TRACKING_ENDED = auto()
+
     # Trackable objects
     TRACKABLE_CREATED = auto()
     TRACKABLE_UPDATED = auto()
     TRACKABLE_DELETED = auto()
     TRACKABLE_MATCHING_SET_ACTIVE = auto()
     TRACKABLE_MATCHING_SET_INACTIVE = auto()
-
+    # Matcher
     MATCH_FOUND = auto()
+
     # Files
     FILES_UPLOADED = auto()
     IMAGE_UPLOADED = auto()
     EXCEL_UPLOADED = auto()
-    
+
     # Transactions
     TRANSACTIONS_LOADED = auto()
     RECEIPT_CREATED = auto()
+
+    # OCR
+    TEXT_DETECTED = auto()
 
 
 @dataclass
@@ -127,7 +137,7 @@ class DetectionEvent(BaseEvent):
     def __init__(self, detections: dict, correlations: dict = {}, event_type=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.detections = detections
-        self.uuid = detections["id"]
+        self.uuid = detections.get("id", None) or detections["uuid"]
         self.event_type = event_type or EventType.OBJECT_DETECTED
         self.correlations = correlations
 
@@ -196,10 +206,13 @@ class MatchEvent(BaseEvent):
 class FileEvent(BaseEvent):
     prefix: str = "FILES"
 
-    def __init__(self, route: str, user_id: str, event_type: EventType = None, *args, **kwargs):
+    def __init__(
+        self, route: str, user_id: str, event_type: EventType = None, data: bytes = None, *args, **kwargs
+    ):
         super().__init__(*args, **kwargs)
-        self.route = route
         self.user_id = user_id
+        self.route = route
+        self.data = data
         self.event_type = event_type or EventType.FILES_UPLOADED
 
 

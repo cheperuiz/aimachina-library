@@ -2,6 +2,9 @@ class MongoDAO:
     def __init__(self, collection):
         self._collection = collection
 
+    def count(self, filters):
+        return self._collection.count_documents(filters)
+
     def get_all(self, skip=0, limit=0):
         result_set = self._collection.find().skip(skip).limit(limit)
         return result_set

@@ -32,9 +32,8 @@ class S3:
         return key
 
     def download_file(self, key, filename):
-        bucket = self._get_bucket()
         with open(filename, "wb") as f:
-            bucket.download_fileobj(key, f)
+            self.download_obj(key, f)
 
     def download_obj(self, key, handle):
         bucket = self._get_bucket()
@@ -42,11 +41,11 @@ class S3:
 
     def list_files(self, limit=1000):
         bucket = self._get_bucket()
-        return [o.key for o in bucket.objects.limit(count=limit)]
+        return (o.key for o in bucket.objects.limit(count=limit))
 
     def list_files_in_dir(self, directory):
         bucket = self._get_bucket()
-        return [o.key for o in bucket.objects.filter(Prefix=directory)]
+        return (o.key for o in bucket.objects.filter(Prefix=directory))
 
     def delete_one(self, key):
         return self.delete_many([key])
