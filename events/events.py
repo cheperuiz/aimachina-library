@@ -58,6 +58,7 @@ class EventType(Enum):
     FILES_UPLOADED = auto()
     IMAGE_UPLOADED = auto()
     EXCEL_UPLOADED = auto()
+    ARCHIVE_UPLOADED = auto()
 
     # Transactions
     TRANSACTIONS_LOADED = auto()

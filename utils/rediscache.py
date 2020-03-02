@@ -2,6 +2,7 @@ import pickle
 import redis
 import copy
 import builtins
+import json
 
 from utils.configmanager import ConfigManager
 
@@ -143,3 +144,41 @@ def coerce_obj(obj, type_name):
 
 cache_types = [str, int, bytes, float]
 should_pickle = lambda x: type(x) not in cache_types
+
+
+def redis_cachable(r, name, timeout=120):
+    def _set_name(f):
+        def _redis_cachable(key, *args, **kwargs):
+            key_name = name + "-" + key
+            if r.exists(key_name):
+                result = r.get(key_name)
+            else:
+                result = f(key, *args, **kwargs)
+                r.set(key_name, result, ex=timeout)
+            return result
+
+        return _redis_cachable
+
+    return _set_name
+
+
+def invalidate_key(r, name):
+    def _set_name(f):
+        def _invalidate_key(key, *args, **kwargs):
+            key_name = name + "-" + key
+            r.delete(key_name)
+            return f(key, *args, **kwargs)
+
+        return _invalidate_key
+
+    return _set_name
+
+
+def make_redis(redis_config):
+    return redis.StrictRedis(
+        host=redis_config["host"],
+        port=redis_config["port"],
+        db=redis_config["db"],
+        password=redis_config["password"],
+    )
+

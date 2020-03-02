@@ -37,6 +37,10 @@ class MongoDAO:
         r = self._collection.insert_one(item)
         return r.inserted_id
 
+    def sample(self, filters={}, n=1):
+        pipeline = [{"$match": filters}, {"$sample": {"size": n}}]
+        return self._collection.aggregate(pipeline)
+
     def save_many(self, items):
         for item in items:
             if "_id" in item and not item["_id"]:

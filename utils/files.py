@@ -27,3 +27,16 @@ def remove_dir(top):
 
 def extension(filename):
     return filename.rsplit(".", 1)[-1].lower()
+
+
+IMAGE_EXTENSIONS = {"jpg", "png", "jpeg"}
+ARCHIVE_EXTENSIONS = {"zip", "rar"}
+ALLOWED_EXTENSIONS = IMAGE_EXTENSIONS.union(ARCHIVE_EXTENSIONS)
+
+
+def is_image(filename, image_extensions=IMAGE_EXTENSIONS):
+    return extension(filename) in image_extensions
+
+
+def allowed_file(filename, allowed_extensions=ALLOWED_EXTENSIONS):
+    return "." in filename and extension(filename) in allowed_extensions
