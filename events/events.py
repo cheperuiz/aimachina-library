@@ -66,6 +66,7 @@ class EventType(Enum):
 
     # OCR
     TEXT_DETECTED = auto()
+    TEXT_UPDATED = auto()
 
 
 @dataclass
