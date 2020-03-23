@@ -68,6 +68,10 @@ class EventType(Enum):
     TEXT_DETECTED = auto()
     TEXT_UPDATED = auto()
 
+    # Documents
+    DOCUMENT_CREATED = auto()
+    DOCUMENT_INDEXED = auto()
+
 
 @dataclass
 class BaseEvent:
@@ -227,3 +231,17 @@ class ReceiptEvent(BaseEvent):
         self.user_id = user_id
         self.receipt_data = receipt_data
         self.event_type = event_type or EventType.RECEIPT_CREATED
+
+
+@dataclass
+class DocumentEvent(BaseEvent):
+    prefix: str = "DOCUMENT"
+    document_id: str = field(default_factory=str)
+
+    def __init__(
+        self, document_id: str, correlations: dict = {}, event_type: EventType = None, *args, **kwargs
+    ):
+        super().__init__(*args, **kwargs)
+        self.document_id = document_id
+        self.correlations = correlations
+        self.event_type = event_type or EventType.DOCUMENT_CREATED
