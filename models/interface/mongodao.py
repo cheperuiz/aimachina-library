@@ -17,8 +17,8 @@ class MongoDAO:
         filters = {"_id": {"$in": ids}}
         return self.get_many_by(filters)
 
-    def get_many_by(self, filters):
-        return self._collection.find(filters)
+    def get_many_by(self, filters, skip=0, limit=0):
+        return self._collection.find(filters).skip(skip).limit(limit)
 
     def get_first(self, filters):
         return self._collection.find_one(filters)
@@ -51,4 +51,3 @@ class MongoDAO:
     def update_one(self, _id, data):
         r = self._collection.update_one({"_id": _id}, {"$set": data}, upsert=False)
         return r.modified_count
-
