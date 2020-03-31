@@ -30,12 +30,16 @@ def extension(filename):
 
 
 IMAGE_EXTENSIONS = {"jpg", "png", "jpeg"}
+DOCUMENT_EXTENSIONS = {"xls", "xlsx"}
 ARCHIVE_EXTENSIONS = {"zip", "rar"}
-ALLOWED_EXTENSIONS = IMAGE_EXTENSIONS.union(ARCHIVE_EXTENSIONS)
+ALLOWED_EXTENSIONS = IMAGE_EXTENSIONS.union(ARCHIVE_EXTENSIONS).union(DOCUMENT_EXTENSIONS)
 
 
 def is_image(filename, image_extensions=IMAGE_EXTENSIONS):
     return extension(filename) in image_extensions
+
+def is_document(filename, document_extensions=DOCUMENT_EXTENSIONS):
+    return extension(filename) in document_extensions
 
 
 def allowed_file(filename, allowed_extensions=ALLOWED_EXTENSIONS):

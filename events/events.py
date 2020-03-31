@@ -61,7 +61,7 @@ class EventType(Enum):
     ARCHIVE_UPLOADED = auto()
 
     # Transactions
-    TRANSACTIONS_LOADED = auto()
+    TRANSACTION_LOADED = auto()
     RECEIPT_CREATED = auto()
 
     # OCR
@@ -231,6 +231,16 @@ class ReceiptEvent(BaseEvent):
         self.user_id = user_id
         self.receipt_data = receipt_data
         self.event_type = event_type or EventType.RECEIPT_CREATED
+
+@dataclass
+class TransactionEvent(BaseEvent):
+    prefix: str = "TRANSACTION"
+
+    def __init__(self, transaction_data: dict, user_id: str, event_type: EventType = None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user_id = user_id
+        self.transaction_data = transaction_data
+        self.event_type = event_type or EventType.TRANSACTION_LOADED
 
 
 @dataclass
