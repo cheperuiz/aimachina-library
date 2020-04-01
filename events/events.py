@@ -71,6 +71,7 @@ class EventType(Enum):
     # Documents
     DOCUMENT_CREATED = auto()
     DOCUMENT_INDEXED = auto()
+    DOCUMENT_UPDATED = auto()
 
 
 @dataclass
