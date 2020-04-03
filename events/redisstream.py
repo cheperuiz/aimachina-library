@@ -26,7 +26,7 @@ class RedisStream:
         return cls.__broker
 
 
-def produce_one(name, event, maxlen=500):
+def produce_one(name, event, maxlen=10000):
     r = RedisStream.get_broker()
     key = event.uuid
     value = event_to_bytes(event)

@@ -72,6 +72,7 @@ class EventType(Enum):
     DOCUMENT_CREATED = auto()
     DOCUMENT_INDEXED = auto()
     DOCUMENT_UPDATED = auto()
+    TRANSACTION_INDEXED = auto()
 
 
 @dataclass
@@ -232,6 +233,7 @@ class ReceiptEvent(BaseEvent):
         self.user_id = user_id
         self.receipt_data = receipt_data
         self.event_type = event_type or EventType.RECEIPT_CREATED
+
 
 @dataclass
 class TransactionEvent(BaseEvent):
