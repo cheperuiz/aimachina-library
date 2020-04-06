@@ -88,6 +88,8 @@ class IMongoBase:
             self.created_at = datetime.datetime.now()
         self.updated_at = self.created_at
         serialized = serializer.dump(self)
+        serialized["created_at"] = self.created_at  # Bypass serialization for datetime fields
+        serialized["updated_at"] = self.updated_at
         for field in constraint_value:
             if serialized[field] != constraint_value[field]:
                 raise ValidationError(
@@ -114,9 +116,15 @@ class IMongoBase:
         c.update_one({"_id": self._id}, {"$set": data}, upsert=False)
 
 
+class DatetimeField(fields.DateTime):
+    def _deserialize(self, value, *args, **kwargs):
+        if isinstance(value, datetime.datetime):
+            value = value.isoformat()
+        return super()._deserialize(value, *args, **kwargs)
+
+
 class IMongoBaseSchema(Schema):
     # IBase
     _id = fields.String(load_only=True)
-    created_at = fields.DateTime(missing=datetime.datetime.now)
-    updated_at = fields.DateTime(missing=datetime.datetime.now)
-
+    created_at = DatetimeField(missing=datetime.datetime.now, format="iso")
+    updated_at = DatetimeField(missing=datetime.datetime.now, format="iso")
