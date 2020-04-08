@@ -5,8 +5,11 @@ class MongoDAO:
     def count(self, filters):
         return self._collection.count_documents(filters)
 
-    def get_all(self, skip=0, limit=0):
-        result_set = self._collection.find().skip(skip).limit(limit)
+    def get_all(self, skip=0, limit=0, sort_by=None, order=-1):
+        if not sort_by:
+            result_set = self._collection.find().skip(skip).limit(limit)
+        else:
+            result_set = self._collection.find().skip(skip).limit(limit).sort(sort_by, order)
         return result_set
 
     def get(self, _id):
@@ -17,8 +20,12 @@ class MongoDAO:
         filters = {"_id": {"$in": ids}}
         return self.get_many_by(filters)
 
-    def get_many_by(self, filters, skip=0, limit=0):
-        return self._collection.find(filters).skip(skip).limit(limit)
+    def get_many_by(self, filters, skip=0, limit=0, sort_by=None, order=-1):
+        if not sort_by:
+            result_set = self._collection.find(filters).skip(skip).limit(limit)
+        else:
+            result_set = self._collection.find(filters).skip(skip).limit(limit).sort(sort_by, order)
+        return result_set
 
     def get_first(self, filters):
         return self._collection.find_one(filters)
