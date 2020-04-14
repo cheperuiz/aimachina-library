@@ -1,21 +1,23 @@
 # pylint: disable=import-error
 import requests
-import os
+from os import environ
 from logging import warning
 
-kratos_public_url = os.environ["KRATOS_PUBLIC_URL"]
-kratos_admin_url = os.environ["KRATOS_ADMIN_URL"]
-
+kratos_public_url = environ["KRATOS_PUBLIC_URL"]
+kratos_admin_url = environ["KRATOS_ADMIN_URL"]
 
 def get_kratos_user_identity(request, type='email'):
-    ory_kratos_session_string = request.headers.get('Cookie')
+    if 'ory_kratos_session' in request.cookies:
+        ory_kratos_session_token = request.cookies.get('ory_kratos_session')
+        endpoint = f'/sessions/whoami'
+        headers = {
+            'Cookie': f'ory_kratos_session={ory_kratos_session_token}'
+        }
+        url = f'{kratos_public_url}{endpoint}'
 
-    endpoint = f'/sessions/whoami'
-    headers = {
-        'Cookie': ory_kratos_session_string
-    }
-    url = f'{kratos_public_url}{endpoint}'
-
-    kratos_user_identity = requests.get(url, headers=headers)
-
-    return kratos_user_identity.json()["identity"]["traits"]["email"] if type == 'email' else kratos_user_identity.json()["identity"]["id"]
+        kratos_user_identity = requests.get(url, headers=headers)
+        return kratos_user_identity.json()["identity"]["traits"]["email"] if type == 'email' else kratos_user_identity.json()["identity"]["id"]
+    elif 'username-localhost-8888' in request.cookies and environ['PRODUCTION'] == 'TRUE':
+        return environ['DEVELOPMENT_USER_ID']
+    else:
+        return 400
