@@ -17,7 +17,7 @@ def get_kratos_user_identity(request, type='email'):
 
         kratos_user_identity = requests.get(url, headers=headers)
         return kratos_user_identity.json()["identity"]["traits"]["email"] if type == 'email' else kratos_user_identity.json()["identity"]["id"]
-    elif request.cookies == {} and environ['PRODUCTION'] == 'FALSE':
+    elif request.cookies == {} and environ['ENVIRONMENT'] == 'development':
         return environ['DEVELOPMENT_USER_ID']
     else:
         return 400
