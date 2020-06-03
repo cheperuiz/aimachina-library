@@ -23,9 +23,19 @@ class MongoDAO:
     def get_many_by(self, filters, skip=0, limit=0, sort_by=None, order=-1):
         if not sort_by:
             result_set = self._collection.find(filters).skip(skip).limit(limit)
+
         else:
             result_set = self._collection.find(filters).skip(skip).limit(limit).sort(sort_by, order)
         return result_set
+
+    def make_filters(self, list_fields=[], **kwargs):
+        filters = {}
+        for k, v in kwargs.items():
+            if k in list_fields:
+                filters[k] = {"$in": v}
+            else:
+                filters[k] = v
+        return filters
 
     def get_first(self, filters):
         return self._collection.find_one(filters)
@@ -36,6 +46,10 @@ class MongoDAO:
 
     def delete_many(self, ids):
         r = self._collection.delete_many({"_id": {"$in": ids}})
+        return r.deleted_count
+
+    def delete_by(self, filters):
+        r = self._collection.delete_many(filters)
         return r.deleted_count
 
     def save_one(self, item):
