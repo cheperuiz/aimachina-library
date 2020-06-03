@@ -72,3 +72,7 @@ class MongoDAO:
     def update_one(self, _id, data):
         r = self._collection.update_one({"_id": _id}, {"$set": data}, upsert=False)
         return r.modified_count
+
+    def update_by(self, filters, data):
+        r = self._collection.update_one(filters, {"$set": data}, upsert=False)
+        return r.modified_count
