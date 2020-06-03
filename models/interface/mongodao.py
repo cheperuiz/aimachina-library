@@ -28,10 +28,10 @@ class MongoDAO:
             result_set = self._collection.find(filters).skip(skip).limit(limit).sort(sort_by, order)
         return result_set
 
-    def make_filters(self, list_fields=[], **kwargs):
+    def make_filters(self, **kwargs):
         filters = {}
         for k, v in kwargs.items():
-            if k in list_fields:
+            if isinstance(v, list):
                 filters[k] = {"$in": v}
             else:
                 filters[k] = v
@@ -76,3 +76,6 @@ class MongoDAO:
     def update_by(self, filters, data):
         r = self._collection.update_one(filters, {"$set": data}, upsert=False)
         return r.modified_count
+
+    def create_index(self, on_field):
+        return self._collection.create_index(on_field)
