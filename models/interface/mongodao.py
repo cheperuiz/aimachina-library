@@ -77,5 +77,5 @@ class MongoDAO:
         r = self._collection.update_one(filters, {"$set": data}, upsert=False)
         return r.modified_count
 
-    def create_index(self, on_field):
-        return self._collection.create_index(on_field)
+    def create_index(self, on_field, unique=True):
+        return self._collection.create_index(on_field, unique=unique)
