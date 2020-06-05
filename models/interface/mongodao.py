@@ -55,7 +55,10 @@ class MongoDAO:
     def save_one(self, item):
         if "_id" in item and not item["_id"]:
             item.pop("_id")
-        r = self._collection.insert_one(item)
+        try:
+            r = self._collection.insert_one(item)
+        except:  # DuplicateKeyError
+            return None
         return r.inserted_id
 
     def sample(self, filters={}, n=1):
