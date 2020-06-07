@@ -57,9 +57,9 @@ class MongoDAO:
             item.pop("_id")
         try:
             r = self._collection.insert_one(item)
+            return r.inserted_id
         except:  # DuplicateKeyError
             return None
-        return r.inserted_id
 
     def sample(self, filters={}, n=1):
         pipeline = [{"$match": filters}, {"$sample": {"size": n}}]
