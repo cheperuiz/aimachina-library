@@ -1,7 +1,7 @@
 # pylint: disable=import-error
 # pylint: disable=no-name-in-module
 import time
-from enum import Enum
+from enum import Enum, auto
 from dataclasses import dataclass, field
 from PIL import Image
 
@@ -12,71 +12,82 @@ from utils.common import uuid_factory
 
 class EventType(Enum):
     # Generic
-    GENERIC_EVENT = 1
-    GENERIC_MODEL_CREATED = 2
-    GENERIC_MODEL_DELETED = 3
-    GENERIC_MODEL_UPDATED = 4
+    GENERIC_EVENT = auto()
+    GENERIC_MODEL_CREATED = auto()
+    GENERIC_MODEL_DELETED = auto()
+    GENERIC_MODEL_UPDATED = auto()
 
     # Metrics
-    METRICS_EVENT = 5
+    METRICS_EVENT = auto()
 
     # Streams
-    STREAM_CREATED = 6
-    STREAM_DELETED = 7
-    STREAM_UPDATED = 8
-    FRAMEPRODUCER_STARTED = 9
-    FRAMEPRODUCER_STOPPED = 10
-    FRAMEPRODUCER_FAILED = 11
+    STREAM_CREATED = auto()
+    STREAM_DELETED = auto()
+    STREAM_UPDATED = auto()
+    FRAMEPRODUCER_STARTED = auto()
+    FRAMEPRODUCER_STOPPED = auto()
+    FRAMEPRODUCER_FAILED = auto()
 
     # Frames
-    FRAME_GRABBED = 12
-    FRAMEPRODUCER_METRICS = 13
+    FRAME_GRABBED = auto()
+    FRAMEPRODUCER_METRICS = auto()
 
     # Detector
-    OBJECT_DETECTED = 14  # Detection
-    OBJECTS_DETECTED = 15  # DetectionsList
+    OBJECT_DETECTED = auto()  # Detection
+    OBJECTS_DETECTED = auto()  # DetectionsList
 
     # Encoder
-    OBJECT_ENCODED = 16  # Detection
-    OBJECTS_ENCODED = 17  # DetectionsList
+    OBJECT_ENCODED = auto()  # Detection
+    OBJECTS_ENCODED = auto()  # DetectionsList
 
     # Tracker
-    OBJECT_TRACKING_ACTIVE = 18
-    OBJECT_TRACKING_MERGED = 19
-    OBJECT_TRACKING_ENDED = 20
+    OBJECT_TRACKING_ACTIVE = auto()
+    OBJECT_TRACKING_MERGED = auto()
+    OBJECT_TRACKING_ENDED = auto()
 
     # Trackable objects
-    TRACKABLE_CREATED = 21
-    TRACKABLE_UPDATED = 22
-    TRACKABLE_DELETED = 23
-    TRACKABLE_MATCHING_SET_ACTIVE = 24
-    TRACKABLE_MATCHING_SET_INACTIVE = 25
+    TRACKABLE_CREATED = auto()
+    TRACKABLE_UPDATED = auto()
+    TRACKABLE_DELETED = auto()
+    TRACKABLE_MATCHING_SET_ACTIVE = auto()
+    TRACKABLE_MATCHING_SET_INACTIVE = auto()
     # Matcher
-    MATCH_FOUND = 26
+    MATCH_FOUND = auto()
 
     # Files
-    FILES_UPLOADED = 26
-    IMAGE_UPLOADED = 27
-    EXCEL_UPLOADED = 28
-    ARCHIVE_UPLOADED = 29
+    FILES_UPLOADED = auto()
+    IMAGE_UPLOADED = auto()
+    EXCEL_UPLOADED = auto()
+    ARCHIVE_UPLOADED = auto()
 
     # Transactions
-    TRANSACTION_LOADED = 30
-    RECEIPT_CREATED = 31
+    TRANSACTION_LOADED = auto()
+    RECEIPT_CREATED = auto()
 
     # OCR
-    TEXT_DETECTED = 32
-    TEXT_UPDATED = 33
+    TEXT_DETECTED = auto()
+    TEXT_UPDATED = auto()
+    TEXT_EXTRACTED = auto()
 
     # Documents
-    DOCUMENT_CREATED = 34
-    DOCUMENT_INDEXED = 35
-    DOCUMENT_UPDATED = 36
-    DOCUMENT_DELETED = 37
-    DOCUMENT_DEL_INDEX = 38
+    DOCUMENT_CREATED = auto()
+    DOCUMENT_UPDATED = auto()
+    DOCUMENT_DELETED = auto()
+
+    # Search
+    DOCUMENT_INDEXED = auto()
+    DOCUMENT_UPDATED_IN_INDEX = auto()
+    DOCUMENT_DELETED_FROM_INDEX = auto()
 
     # Transaction Indexed
-    TRANSACTION_INDEXED = 39
+    TRANSACTION_INDEXED = auto()
+
+    # Storage
+    OBJECT_STORED = auto()
+
+    # ML
+    TEXT_LINES_CLASSIFIED = auto()
+    DOCUMENT_IMAGE_CLASSIFIED = auto()
 
 
 @dataclass
@@ -204,13 +215,10 @@ class MatchEvent(BaseEvent):
     test: str = field(default_factory=str)
     metrics: dict = field(default_factory=dict)
 
-    def __init__(
-        self, test: str, matches: dict, correlations: dict = {}, event_type: EventType = None, *args, **kwargs
-    ):
+    def __init__(self, test: str, matches: dict, event_type: EventType = None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.test = test
         self.matches = matches
-        self.correlations = correlations
         self.event_type = event_type or EventType.MATCH_FOUND
 
 
@@ -262,7 +270,6 @@ class DocumentEvent(BaseEvent):
         self,
         document_id: str,
         signature: str = "",
-        correlations: dict = {},
         data: dict = {},
         user_id: str = "",
         event_type: EventType = None,
@@ -270,9 +277,59 @@ class DocumentEvent(BaseEvent):
         **kwargs
     ):
         super().__init__(*args, **kwargs)
+        self.document_id = document_id
         self.signature = signature
         self.data = data
         self.user_id = user_id
-        self.document_id = document_id
-        self.correlations = correlations
         self.event_type = event_type or EventType.DOCUMENT_CREATED
+
+
+@dataclass
+class StorageEvent(BaseEvent):
+    prefix: str = "STORAGE-EVENT"
+    user_id: str = field(default="")
+    object_key: str = field(default="")
+    signature: str = field(default="")
+
+    def __init__(
+        self, object_key: str, signature: str, user_id: str, event_type: EventType = None, *args, **kwargs
+    ):
+        super().__init__(*args, **kwargs)
+        self.user_id = user_id
+        self.object_key = object_key
+        self.signature = signature
+        self.event_type = event_type or EventType.OBJECT_STORED
+
+
+@dataclass
+class OCREvent(BaseEvent):
+    prefix: str = "OCR-EVENT"
+    user_id: str = field(default="")
+    signature: str = field(default="")
+    data: bytes = field(default=None)
+
+    def __init__(
+        self, signature: str, data: bytes, user_id: str, event_type: EventType = None, *args, **kwargs
+    ):
+        super().__init__(*args, **kwargs)
+        self.signature = signature
+        self.data = data
+        self.user_id = user_id
+        self.event_type = event_type or EventType.TEXT_EXTRACTED
+
+
+@dataclass
+class MLEvent(BaseEvent):
+    prefix: str = "ML-EVENT"
+    user_id: str = field(default="")
+    data: dict = field(default_factory=dict)
+    source_id: str = field(default="")
+
+    def __init__(
+        self, user_id: str, source_id: str, data: dict = None, event_type: EventType = None, *args, **kwargs
+    ):
+        super().__init__(*args, **kwargs)
+        self.source_id = source_id
+        self.data = data or {}
+        self.user_id = user_id
+        self.event_type = event_type or EventType.TEXT_LINES_CLASSIFIED

@@ -82,3 +82,6 @@ class MongoDAO:
 
     def create_index(self, on_field, unique=True):
         return self._collection.create_index(on_field, unique=unique)
+
+    def create_indexes(self, indexes):
+        return self._collection.create_indexes(indexes)
