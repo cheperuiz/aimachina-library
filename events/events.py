@@ -3,7 +3,7 @@
 import time
 from enum import Enum, auto
 from dataclasses import dataclass, field
-from PIL import Image
+
 
 # pylint: enable=import-error
 
@@ -139,6 +139,8 @@ class StreamEvent(BaseEvent):
 
 @dataclass
 class FrameEvent(BaseEvent):
+    from PIL import Image
+
     prefix: str = "FRAME-EVENT"
     frame: Image = field(default_factory=None)
     worker_id: str = field(default_factory=None)
