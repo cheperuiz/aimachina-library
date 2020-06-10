@@ -56,10 +56,11 @@ def maybe_create_consumer_groups(broker, consumer_groups_config):
     group_name = consumer_groups_config["name"]
     for stream in streams:
         if not broker.exists(stream) or not any(
-            [group_name in group["name"].decode("utf-8") for group in broker.xinfo_groups(stream)]
+            [group_name == group["name"].decode("utf-8") for group in broker.xinfo_groups(stream)]
         ):
             try:
                 broker.xgroup_create(stream, group_name, mkstream=True)
+                print(f"Consumer group '{group_name}' created for stream {stream}")
             except:
                 pass  # Not pretty, but handles the issue of a race for creating a CG
 
